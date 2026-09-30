@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Bunny Jump 🐰🥕</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    overflow-x: hidden;
+
+    /* FONDO DE LA PÁGINA */
+    background:
+        radial-gradient(circle at 20% 20%, #ffffff 0 5%, transparent 6%),
+        radial-gradient(circle at 80% 30%, #ffffff 0 4%, transparent 5%),
+        linear-gradient(
+            #74cfff,
+            #b8edff 45%,
+            #eaffd9 100%
+        );
+}
+
+h1 {
+    margin: 15px 0 8px;
+    color: #5b3a29;
+    text-shadow: 2px 2px white;
+}
+
+/* CONTENEDOR DEL JUEGO */
+
+#juego {
+    width: 400px;
+    height: 600px;
+    margin: auto;
+    position: relative;
+    overflow: hidden;
+
+    border: 5px solid #5b3a29;
+    border-radius: 18px;
+
+    background:
+        linear-gradient(
+            rgba(255,255,255,0.12),
+            rgba(255,255,255,0.12)
+        ),
+        linear-gradient(
+            #75d3ff 0%,
+            #b9efff 55%,
+            #dfffc8 100%
+        );
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,0.25);
+}
+
+/* NUBES */
+
+.nube {
+    position: absolute;
+    font-size: 55px;
+    opacity: 0.75;
+    z-index: 1;
+    user-select: none;
+}
+
+.nube1 {
+    left: 20px;
+    top: 100px;
+}
+
+.nube2 {
+    right: 20px;
+    top: 220px;
+}
+
+.nube3 {
+    left: 130px;
+    top: 360px;
+}
+
+/* MUNDO */
+
+#mundo {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+}
+
+/* CONEJO */
+
+#conejo {
+    position: absolute;
+
+    width: 55px;
+    height: 55px;
+
+    font-size: 42px;
+    line-height: 55px;
+
+    text-align: center;
+
+    z-index: 50;
+
+    user-select: none;
+
+    filter:
+        drop-shadow(2px 3px 2px rgba(0,0,0,0.2));
+}
+
+/* INFORMACIÓN */
+
+#informacion {
+    position: absolute;
+
+    top: 10px;
+    left: 10px;
+
+    z-index: 100;
+
+    background: rgba(255,255,255,0.92);
+
+    padding: 8px 12px;
+
+    border-radius: 12px;
+
+    font-weight: bold;
+
+    font-size: 13px;
+
+    box-shadow:
+        0 3px 8px rgba(0,0,0,0.15);
+}
+
+/* PLATAFORMAS */
+
+.plataforma {
+    position: absolute;
+
+    height: 16px;
+
+    background:
+        linear-gradient(
+            #79d65b,
+            #43a83c
+        );
+
+    border: 3px solid #347b30;
+
+    border-radius: 12px;
+
+    box-shadow:
+        0 3px 0 rgba(0,0,0,0.15);
+
+    z-index: 10;
+}
+
+/* ZANAHORIAS */
+
+.zanahoria {
+    position: absolute;
+
+    font-size: 28px;
+
+    z-index: 20;
+
+    user-select: none;
+
+    filter:
+        drop-shadow(1px 2px 1px rgba(0,0,0,0.2));
+}
+
+/* PODERES */
+
+.poder {
+    position: absolute;
+
+    font-size: 31px;
+
+    z-index: 25;
+
+    user-select: none;
+
+    animation:
+        flotar 0.8s infinite alternate;
+}
+
+@keyframes flotar {
+
+    from {
+        transform: translateY(0);
+    }
+
+    to {
+        transform: translateY(-6px);
+    }
+
+}
+
+/* MENSAJE */
+
+#mensaje {
+    margin: 12px;
+
+    font-weight: bold;
+
+    color: #5b3a29;
+
+    min-height: 20px;
+}
+
+/* BOTÓN */
+
+button {
+    padding: 10px 20px;
+
+    border: 0;
+
+    border-radius: 10px;
+
+    background: #61b84d;
+
+    color: white;
+
+    font-size: 16px;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 4px 0 #39752f;
+}
+
+button:hover {
+    background: #4ca43e;
+}
+
+button:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 #39752f;
+}
+
+/* PANTALLA FINAL */
+
+#victoria {
+    display: none;
+
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 200;
+
+    background:
+        rgba(255,255,255,0.94);
+
+    align-items: center;
+    justify-content: center;
+
+    flex-direction: column;
+
+    border-radius: 12px;
+}
+
+#victoria h2 {
+    font-size: 34px;
+    color: #4d8f3a;
+    margin: 10px;
+}
+
+#victoria p {
+    font-size: 18px;
+    color: #5b3a29;
+}
+
+/* META */
+
+.meta {
+    margin-top: 5px;
+
+    font-size: 14px;
+
+    color: #5b3a29;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>🐰 BUNNY JUMP 🥕</h1>
+
+<div id="juego">
+
+    <!-- FONDO -->
+
+    <div class="nube nube1">☁️</div>
+    <div class="nube nube2">☁️</div>
+    <div class="nube nube3">☁️</div>
+
+    <!-- INFORMACIÓN -->
+
+    <div id="informacion">
+
+        🥕 <span id="puntos">0</span>
+
+        &nbsp;&nbsp;
+
+        ⬆️ <span id="altura">0</span> m
+
+        &nbsp;&nbsp;
+
+        ⚡ <span id="poderActivo">Ninguno</span>
+
+    </div>
+
+    <!-- MUNDO -->
+
+    <div id="mundo">
+
+        <div id="conejo">🐰</div>
+
+    </div>
+
+    <!-- VICTORIA -->
+
+    <div id="victoria">
+
+        <h2>🎉 ¡10.000 METROS! 🎉</h2>
+
+        <p>
+            🐰 ¡El conejito llegó a la cima!
+        </p>
+
+        <p>
+            🥕 Zanahorias: <span id="victoriaPuntos">0</span>
+        </p>
+
+        <button onclick="reiniciar()">
+            🔄 Jugar otra vez
+        </button>
+
+    </div>
+
+</div>
+
+<div id="mensaje">
+
+    ← → para moverte •
+    🥕 Recoge zanahorias •
+    ⚡🚀 Usa los poderes
+
+</div>
+
+<div class="meta">
+    🎯 Meta: 10.000 metros
+</div>
+
+<br>
+
+<button onclick="reiniciar()">
+    🔄 Reiniciar
+</button>
+
+
+<script>
+
+/* =========================
+   ELEMENTOS
+========================= */
+
+const mundo =
+    document.getElementById("mundo");
+
+const conejo =
+    document.getElementById("conejo");
+
+const puntosTexto =
+    document.getElementById("puntos");
+
+const alturaTexto =
+    document.getElementById("altura");
+
+const poderTexto =
+    document.getElementById("poderActivo");
+
+const mensaje =
+    document.getElementById("mensaje");
+
+const victoria =
+    document.getElementById("victoria");
+
+const victoriaPuntos =
+    document.getElementById("victoriaPuntos");
+
+
+/* =========================
+   VARIABLES
+========================= */
+
+let x = 175;
+
+let y = 530;
+
+let velocidadX = 0;
+
+let velocidadY = 0;
+
+let gravedad = 0.45;
+
+let saltoNormal = -11;
+
+let poderActual = "Ninguno";
+
+let tiempoPoder = 0;
+
+let puntos = 0;
+
+let altura = 0;
+
+let camara = 0;
+
+let juegoActivo = true;
+
+let teclas = {};
+
+let plataformas = [];
+
+let zanahorias = [];
+
+let poderes = [];
+
+let ultimaAlturaCreada = 570;
+
+
+/* =========================
+   CONTROLES
+========================= */
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (
+            event.key === "ArrowLeft" ||
+            event.key === "ArrowRight"
+        ) {
+            event.preventDefault();
+        }
+
+        teclas[event.key] = true;
+
+    }
+);
+
+document.addEventListener(
+    "keyup",
+    function(event) {
+
+        teclas[event.key] = false;
+
+    }
+);
+
+
+/* =========================
+   PLATAFORMAS
+========================= */
+
+function crearPlataforma(
+    posX,
+    posY,
+    ancho
+) {
+
+    const elemento =
+        document.createElement("div");
+
+    elemento.className =
+        "plataforma";
+
+    elemento.style.left =
+        posX + "px";
+
+    elemento.style.top =
+        posY + "px";
+
+    elemento.style.width =
+        ancho + "px";
+
+    mundo.appendChild(elemento);
+
+    plataformas.push({
+
+        elemento: elemento,
+
+        x: posX,
+
+        y: posY,
+
+        ancho: ancho
+
+    });
+
+}
+
+
+/* =========================
+   ZANAHORIAS
+========================= */
+
+function crearZanahoria(
+    posX,
+    posY
+) {
+
+    const elemento =
+        document.createElement("div");
+
+    elemento.className =
+        "zanahoria";
+
+    elemento.textContent =
+        "🥕";
+
+    elemento.style.left =
+        posX + "px";
+
+    elemento.style.top =
+        posY + "px";
+
+    mundo.appendChild(elemento);
+
+    zanahorias.push({
+
+        elemento: elemento,
+
+        x: posX,
+
+        y: posY,
+
+        recogida: false
+
+    });
+
+}
+
+
+/* =========================
+   PODERES
+========================= */
+
+function crearPoder(
+    posX,
+    posY
+) {
+
+    const elemento =
+        document.createElement("div");
+
+    elemento.className =
+        "poder";
+
+    let tipo;
+
+    if (Math.random() < 0.5) {
+
+        tipo = "⚡";
+
+    } else {
+
+        tipo = "🚀";
+
+    }
+
+    elemento.textContent = tipo;
+
+    elemento.style.left =
+        posX + "px";
+
+    elemento.style.top =
+        posY + "px";
+
+    mundo.appendChild(elemento);
+
+    poderes.push({
+
+        elemento: elemento,
+
+        x: posX,
+
+        y: posY,
+
+        tipo: tipo,
+
+        recogido: false
+
+    });
+
+}
+
+
+/* =========================
+   CREAR MUNDO
+========================= */
+
+function crearMundo() {
+
+    mundo.innerHTML = "";
+
+    plataformas = [];
+
+    zanahorias = [];
+
+    poderes = [];
+
+    ultimaAlturaCreada = 570;
+
+    mundo.appendChild(conejo);
+
+
+    /* PLATAFORMA INICIAL */
+
+    crearPlataforma(
+        145,
+        570,
+        110
+    );
+
+
+    let nivelY = 480;
+
+    let ultimaX = 120;
+
+
+    /*
+       MUCHAS PLATAFORMAS
+       DESDE EL PRINCIPIO
+    */
+
+    for (
+        let i = 0;
+        i < 100;
+        i++
+    ) {
+
+        let nuevaX =
+            ultimaX +
+            (
+                Math.random() * 180 - 90
+            );
+
+
+        if (nuevaX < 5) {
+            nuevaX = 5;
+        }
+
+
+        if (nuevaX > 300) {
+            nuevaX = 300;
+        }
+
+
+        let ancho =
+            80 +
+            Math.random() * 45;
+
+
+        crearPlataforma(
+            nuevaX,
+            nivelY,
+            ancho
+        );
+
+
+        /*
+           ZANAHORIA
+        */
+
+        if (
+            Math.random() < 0.85
+        ) {
+
+            crearZanahoria(
+
+                nuevaX +
+                ancho / 2 -
+                10,
+
+                nivelY - 42
+
+            );
+
+        }
+
+
+        /*
+           PODER
+        */
+
+        if (
+            i > 3 &&
+            Math.random() < 0.12
+        ) {
+
+            crearPoder(
+
+                nuevaX +
+                ancho / 2 -
+                15,
+
+                nivelY - 85
+
+            );
+
+        }
+
+
+        ultimaX = nuevaX;
+
+        nivelY -=
+            80 +
+            Math.random() * 35;
+
+        ultimaAlturaCreada =
+            nivelY;
+
+    }
+
+}
+
+
+/* =========================
+   MUNDO INFINITO
+========================= */
+
+function crearMasMundo() {
+
+    /*
+       SIGUE CREANDO PLATAFORMAS
+       HASTA LLEGAR A LA META.
+    */
+
+    while (
+        ultimaAlturaCreada >
+        camara - 1800
+    ) {
+
+        ultimaAlturaCreada -=
+            80 +
+            Math.random() * 40;
+
+
+        let nuevaX =
+            Math.random() * 300;
+
+
+        let ancho =
+            75 +
+            Math.random() * 50;
+
+
+        crearPlataforma(
+
+            nuevaX,
+
+            ultimaAlturaCreada,
+
+            ancho
+
+        );
+
+
+        /*
+           ZANAHORIA
+        */
+
+        if (
+            Math.random() < 0.85
+        ) {
+
+            crearZanahoria(
+
+                nuevaX +
+                ancho / 2 -
+                10,
+
+                ultimaAlturaCreada -
+                42
+
+            );
+
+        }
+
+
+        /*
+           PODER
+        */
+
+        if (
+            Math.random() < 0.12
+        ) {
+
+            crearPoder(
+
+                nuevaX +
+                ancho / 2 -
+                15,
+
+                ultimaAlturaCreada -
+                85
+
+            );
+
+        }
+
+    }
+
+}
+
+
+/* =========================
+   PODER
+========================= */
+
+function activarPoder(tipo) {
+
+    poderActual = tipo;
+
+    tiempoPoder = 420;
+
+
+    if (
+        tipo === "⚡"
+    ) {
+
+        poderTexto.textContent =
+            "Turbo";
+
+        saltoNormal =
+            -14;
+
+        mensaje.textContent =
+            "⚡ ¡Turbo!";
+
+    }
+
+
+    if (
+        tipo === "🚀"
+    ) {
+
+        poderTexto.textContent =
+            "Cohete";
+
+        velocidadY =
+            -15;
+
+        mensaje.textContent =
+            "🚀 ¡Impulso!";
+
+    }
+
+}
+
+
+/* =========================
+   ACTUALIZAR PODER
+========================= */
+
+function actualizarPoder() {
+
+    if (
+        tiempoPoder > 0
+    ) {
+
+        tiempoPoder--;
+
+    }
+
+    else {
+
+        poderActual =
+            "Ninguno";
+
+        saltoNormal =
+            -11;
+
+        poderTexto.textContent =
+            "Ninguno";
+
+    }
+
+}
+
+
+/* =========================
+   ACTUALIZAR JUEGO
+========================= */
+
+function actualizar() {
+
+    if (!juegoActivo) {
+        return;
+    }
+
+
+    /* MOVIMIENTO */
+
+    if (
+        teclas["ArrowLeft"]
+    ) {
+
+        velocidadX = -5;
+
+    }
+
+    else if (
+        teclas["ArrowRight"]
+    ) {
+
+        velocidadX = 5;
+
+    }
+
+    else {
+
+        velocidadX *= 0.85;
+
+    }
+
+
+    x += velocidadX;
+
+
+    /* BORDES */
+
+    if (x < 0) {
+        x = 0;
+    }
+
+    if (x > 345) {
+        x = 345;
+    }
+
+
+    /* GRAVEDAD */
+
+    velocidadY += gravedad;
+
+    y += velocidadY;
+
+
+    /* PLATAFORMAS */
+
+    plataformas.forEach(
+        function(p) {
+
+            if (
+
+                x + 45 > p.x &&
+
+                x <
+                p.x + p.ancho &&
+
+                y + 50 >= p.y &&
+
+                y + 50 <=
+                p.y + 20 &&
+
+                velocidadY > 0
+
+            ) {
+
+                y =
+                    p.y - 50;
+
+                velocidadY =
+                    saltoNormal;
+
+            }
+
+        }
+    );
+
+
+    /* ZANAHORIAS */
+
+    zanahorias.forEach(
+        function(z) {
+
+            if (
+                z.recogida
+            ) {
+                return;
+            }
+
+
+            if (
+
+                x + 45 > z.x &&
+
+                x <
+                z.x + 30 &&
+
+                y + 45 > z.y &&
+
+                y <
+                z.y + 30
+
+            ) {
+
+                z.recogida =
+                    true;
+
+                z.elemento.remove();
+
+                puntos++;
+
+                puntosTexto.textContent =
+                    puntos;
+
+            }
+
+        }
+    );
+
+
+    /* PODERES */
+
+    poderes.forEach(
+        function(p) {
+
+            if (
+                p.recogido
+            ) {
+                return;
+            }
+
+
+            if (
+
+                x + 45 > p.x &&
+
+                x <
+                p.x + 35 &&
+
+                y + 45 > p.y &&
+
+                y <
+                p.y + 35
+
+            ) {
+
+                p.recogido =
+                    true;
+
+                p.elemento.remove();
+
+                activarPoder(
+                    p.tipo
+                );
+
+            }
+
+        }
+    );
+
+
+    actualizarPoder();
+
+
+    /* CÁMARA */
+
+    if (
+        y < 250
+    ) {
+
+        let movimiento =
+            250 - y;
+
+
+        y = 250;
+
+
+        camara +=
+            movimiento;
+
+
+        plataformas.forEach(
+            function(p) {
+
+                p.y += movimiento;
+
+                p.elemento.style.top =
+                    p.y + "px";
+
+            }
+        );
+
+
+        zanahorias.forEach(
+            function(z) {
+
+                z.y += movimiento;
+
+                z.elemento.style.top =
+                    z.y + "px";
+
+            }
+        );
+
+
+        poderes.forEach(
+            function(p) {
+
+                p.y += movimiento;
+
+                p.elemento.style.top =
+                    p.y + "px";
+
+            }
+        );
+
+
+        altura +=
+            Math.floor(movimiento);
+
+
+        /*
+           NO DEJA PASAR DE 10.000
+        */
+
+        if (altura > 10000) {
+            altura = 10000;
+        }
+
+
+        alturaTexto.textContent =
+            altura;
+
+
+        crearMasMundo();
+
+
+        /*
+           VICTORIA
+        */
+
+        if (
+            altura >= 10000
+        ) {
+
+            ganar();
+
+            return;
+
+        }
+
+    }
+
+
+    /* LIMPIAR */
+
+    plataformas =
+        plataformas.filter(
+            function(p) {
+
+                if (
+                    p.y > 700
+                ) {
+
+                    p.elemento.remove();
+
+                    return false;
+
+                }
+
+                return true;
+
+            }
+        );
+
+
+    zanahorias =
+        zanahorias.filter(
+            function(z) {
+
+                if (
+                    z.y > 700
+                ) {
+
+                    z.elemento.remove();
+
+                    return false;
+
+                }
+
+                return true;
+
+            }
+        );
+
+
+    poderes =
+        poderes.filter(
+            function(p) {
+
+                if (
+                    p.y > 700
+                ) {
+
+                    p.elemento.remove();
+
+                    return false;
+
+                }
+
+                return true;
+
+            }
+        );
+
+
+    /* CAÍDA */
+
+    if (
+        y > 650
+    ) {
+
+        juegoActivo =
+            false;
+
+        mensaje.textContent =
+            "💀 ¡El conejito cayó! " +
+            "🥕 " +
+            puntos +
+            " zanahorias • " +
+            "⬆️ " +
+            altura +
+            " metros";
+
+        return;
+
+    }
+
+
+    /* DIBUJAR */
+
+    conejo.style.left =
+        x + "px";
+
+    conejo.style.top =
+        y + "px";
+
+
+    requestAnimationFrame(
+        actualizar
+    );
+
+}
+
+
+/* =========================
+   GANAR
+========================= */
+
+function ganar() {
+
+    juegoActivo =
+        false;
+
+    altura = 10000;
+
+    alturaTexto.textContent =
+        "10000";
+
+    victoriaPuntos.textContent =
+        puntos;
+
+    victoria.style.display =
+        "flex";
+
+    mensaje.textContent =
+        "🎉 ¡Llegaste a los 10.000 metros!";
+
+}
+
+
+/* =========================
+   REINICIAR
+========================= */
+
+function reiniciar() {
+
+    x = 175;
+
+    y = 530;
+
+    velocidadX = 0;
+
+    velocidadY = 0;
+
+    puntos = 0;
+
+    altura = 0;
+
+    camara = 0;
+
+    poderActual =
+        "Ninguno";
+
+    tiempoPoder = 0;
+
+    saltoNormal =
+        -11;
+
+    juegoActivo =
+        true;
+
+
+    puntosTexto.textContent =
+        "0";
+
+    alturaTexto.textContent =
+        "0";
+
+    poderTexto.textContent =
+        "Ninguno";
+
+    mensaje.textContent =
+        "← → para moverte • " +
+        "🥕 Recoge zanahorias • " +
+        "⚡🚀 Usa los poderes";
+
+
+    victoria.style.display =
+        "none";
+
+
+    crearMundo();
+
+    actualizar();
+
+}
+
+
+/* =========================
+   INICIAR
+========================= */
+
+crearMundo();
+
+actualizar();
+
+</script>
+
+</body>
+</html>
